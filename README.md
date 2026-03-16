@@ -1,6 +1,6 @@
 ## Safe Coder
 
-Safe Coder is a configuration package for the [`pi` coding agent](https://github.com/badlogic/pi-mono) that adds **safety guardrails** and **project-specific** extensions to reduce risky operations while you code with an AI assistant.
+Safe Coder is a configuration package for the [`pi` coding agent](https://www.npmjs.com/package/@mariozechner/pi-coding-agent) that adds **safety guardrails** and **project-specific** extensions to reduce risky operations while you code with an AI assistant.
 
 This project is meant to be used as a dependency or a template: you point `pi` at this package, and it will load its extensions and skills automatically.
 
@@ -58,7 +58,7 @@ pi install npm:safe-coder
 
 - Node.js (version compatible with `@mariozechner/pi-coding-agent`).
 - `pnpm` as package manager (see `packageManager` field in `package.json`).
-- The [`pi` coding agent](https://github.com/badlogic/pi) installed and available on your system.
+- The [`pi` coding agent](https://www.npmjs.com/package/@mariozechner/pi-coding-agent) installed and available on your system.
 
 ### Installation
 
