@@ -12,7 +12,8 @@ export default function (pi: ExtensionAPI) {
 	const protectedPaths = [".env", ".git/", "node_modules/"];
 
 	pi.on("tool_call", async (event, ctx) => {
-		const path = event.input.path as string;
+		const path = event.input.path as string | undefined;
+		if (!path) return undefined;
 		const isEnv = path.includes(".env");
 
 		// Block all operations on .env
