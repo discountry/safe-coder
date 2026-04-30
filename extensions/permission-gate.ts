@@ -12,11 +12,20 @@
 import path from "node:path";
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 
+/** Paths outside cwd that are allowed without confirmation. */
+const ALLOWED_PATHS = ["/tmp/", "/private/tmp/"];
+
 /** True if targetPath, when resolved against cwd, is outside cwd. */
 function isOutsideCwd(cwd: string, targetPath: string): boolean {
 	const resolved = path.resolve(cwd, targetPath);
 	const rel = path.relative(cwd, resolved);
 	return rel.startsWith("..") || path.isAbsolute(rel);
+}
+
+/** True if targetPath is inside one of the allowed paths. */
+function isAllowedPath(targetPath: string): boolean {
+	const resolved = path.resolve(targetPath);
+	return ALLOWED_PATHS.some((allowed) => resolved.startsWith(allowed));
 }
 
 export default function (pi: ExtensionAPI) {
@@ -33,6 +42,10 @@ export default function (pi: ExtensionAPI) {
 		if (event.toolName === "read" || event.toolName === "write" || event.toolName === "edit") {
 			const targetPath = event.input.path as string | undefined;
 			if (targetPath && isOutsideCwd(cwd, targetPath)) {
+				// Allow all file operations on /tmp without confirmation
+				if (isAllowedPath(targetPath)) {
+					return undefined;
+				}
 				reasonLabel = "Path is outside current working directory";
 				detail = `${event.toolName}: ${targetPath}\n\nCWD: ${cwd}`;
 			}

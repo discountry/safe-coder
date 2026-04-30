@@ -39,6 +39,20 @@ function notifyWindows(title: string, body: string): void {
 	execFile("powershell.exe", ["-NoProfile", "-Command", windowsToastScript(title, body)]);
 }
 
+const MACOS_SOUND_PATH = "/System/Library/Sounds/Glass.aiff";
+
+function playMacSound(): void {
+	if (process.platform !== "darwin") return;
+	const { spawn } = require("child_process");
+	// Detached so the sound outlives any short-lived parent context; ignore I/O.
+	const child = spawn("afplay", [MACOS_SOUND_PATH], {
+		stdio: "ignore",
+		detached: true,
+	});
+	child.on("error", () => {});
+	child.unref();
+}
+
 function notify(title: string, body: string): void {
 	if (process.env.WT_SESSION) {
 		notifyWindows(title, body);
@@ -47,6 +61,7 @@ function notify(title: string, body: string): void {
 	} else {
 		notifyOSC777(title, body);
 	}
+	playMacSound();
 }
 
 export default function (pi: ExtensionAPI) {
