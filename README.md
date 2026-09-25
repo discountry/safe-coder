@@ -33,6 +33,51 @@ pi install npm:safe-coder
   - Ships with a `skills/skills.txt` reference that documents how `pi` discovers and uses Agent Skills.
   - Compatible with the [Agent Skills specification](https://agentskills.io/specification).
 
+### Configuration
+
+Safe Coder reads its configuration from `~/.pi/agent/safe-coder.json` at startup. If the file does not exist, built-in defaults are used.
+
+Create the config file to customize allowed paths:
+
+```jsonc
+// ~/.pi/agent/safe-coder.json
+{
+  "allowedReadPaths": [
+    "~/projects",      // your development workspace
+    "~/workspace"      // general document access
+  ]
+}
+```
+
+#### Config fields
+
+| Field | Description | Built-in defaults |
+|-------|-------------|-------------------|
+| `allowedReadPaths` | Paths outside cwd allowed for `read` operations without prompting | `~/.agents` |
+| `allowedFileOperationPaths` | Paths outside cwd allowed for any operation (`read`, `write`, `edit`) without prompting | `/tmp`, `/private/tmp` |
+| `allowedBashPaths` | Shell command arguments that resolve to these paths are considered safe | `/dev/null` |
+| `sensitiveFilePatterns` | File name patterns whose content is obfuscated (API keys masked) before reaching the model | `*.env`, `*.pem`, `*.key`, `id_rsa`, `settings.json`, `.aws/credentials`, etc. |
+
+#### Merge behavior
+
+Config values are **merged with** built-in defaults (defaults first, then your values). You never lose the built-in safe paths by adding your own. Path entries are deduplicated after resolution.
+
+#### Path syntax
+
+- Use absolute paths: `"/usr/local"`
+- Use `~` for home directory: `"~/projects"`, `"~/workspace"`
+- Paths are resolved and compared as prefixes — any file inside an allowed path is permitted.
+
+#### Sensitive file handling
+
+When safe-coder detects a read operation on a sensitive file (matched by `sensitiveFilePatterns`):
+
+1. The file content is read and values matching common API key/token patterns are obfuscated (e.g., `sk-ant-xxxx...xxxx`)
+2. A preview with obfuscated values is shown to the user for approval
+3. If approved, the actual read proceeds — but the model receives the **obfuscated** version
+
+This ensures that even if you explicitly allow reading a credentials file, the model never sees raw secrets. You can always disable this behavior by removing the relevant patterns from `sensitiveFilePatterns`.
+
 ### Project Layout
 
 - `package.json`
@@ -44,6 +89,7 @@ pi install npm:safe-coder
     - `./themes`
 - `extensions/permission-gate.ts`
   - A `pi` extension that listens to `tool_call` events and:
+    - Reads configuration from `~/.pi/agent/safe-coder.json`.
     - Detects dangerous shell commands via regex heuristics.
     - Detects file operations that leave the current working directory.
     - Uses `ctx.ui.select` to ask the user whether to allow or block the call.
@@ -57,7 +103,7 @@ pi install npm:safe-coder
 
 ### Requirements
 
-- Node.js (version compatible with `@mariozechner/pi-coding-agent`).
+- Node.js (version compatible with `@earendil-works/pi-coding-agent`).
 - `pnpm` as package manager (see `packageManager` field in `package.json`).
 - The [`pi` coding agent](https://www.npmjs.com/package/@mariozechner/pi-coding-agent) installed and available on your system.
 
@@ -94,12 +140,11 @@ You will then see:
 - Confirmation prompts when the assistant attempts potentially dangerous or out-of-bounds commands.
 - Warnings and blocks when the assistant tries to touch protected paths.
 
-### Customization
+### Advanced Customization
+Some customization is not handled by the config file.
 
 - **Adjust dangerous patterns**
-  - Edit `extensions/permission-gate.ts` to add or refine regex patterns for dangerous commands or external paths.
-- **Change protected paths**
-  - Edit `extensions/protected-paths.ts` and update the `protectedPaths` array or the `.env` handling logic.
+  - Edit `extensions/permission-gate.ts` to add or refine regex patterns for dangerous commands.
 - **Add skills**
   - Create new skill directories under `skills/` following the Agent Skills format (each with a `SKILL.md` file and optional scripts/docs).
   - Update descriptions so the assistant knows when to use each skill.
