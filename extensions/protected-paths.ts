@@ -10,7 +10,7 @@
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { loadConfig, type SafeCoderConfig } from "../lib/config-loader.ts";
+import { loadConfig } from "../lib/config-loader.ts";
 
 // ── Resolved paths ──────────────────────────────────────────────────────────
 

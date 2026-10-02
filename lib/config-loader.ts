@@ -44,10 +44,10 @@ export function mergeArrays(defaults: string[], configValues?: string[]): string
 }
 
 /** Load and parse the config file, returning null on any error. */
-export function loadConfig<T>(): T | null {
+export function loadConfig(): SafeCoderConfig | null {
 	try {
 		const raw = fs.readFileSync(CONFIG_FILE, "utf-8");
-		return JSON.parse(raw) as T;
+		return JSON.parse(raw) as SafeCoderConfig;
 	} catch (err) {
 		if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
 		if (err instanceof SyntaxError) {

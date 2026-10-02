@@ -17,11 +17,11 @@
 import os from "node:os";
 import path from "node:path";
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { mergeArrays, loadConfig, type SafeCoderConfig } from "../lib/config-loader.ts";
+import { mergeArrays, loadConfig } from "../lib/config-loader.ts";
 
 // ── Resolved paths (defaults merged with user config) ───────────────────────
 
-const config = loadConfig<SafeCoderConfig>();
+const config = loadConfig();
 
 const DEFAULT_ALLOWED_FILE_OPERATION_PATHS = ["/tmp", "/private/tmp"];
 const DEFAULT_ALLOWED_READ_PATHS = [path.join(os.homedir(), ".agents")];
