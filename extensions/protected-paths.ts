@@ -5,16 +5,12 @@
  * Blocks write and edit operations to protected paths.
  * Useful for preventing accidental modifications to sensitive files.
  *
- * Configuration is read from ~/.pi/agent/safe-coder.json at startup.
- * See README.md for details.
+ * Core protections are always enforced and are not configurable.
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { loadConfig } from "../lib/config-loader.ts";
 
 // ── Resolved paths ──────────────────────────────────────────────────────────
-
-const config = loadConfig();
 
 const DEFAULT_PROTECTED_PATHS = [".env", ".git/", "node_modules/"];
 const PROTECTED_PATHS = DEFAULT_PROTECTED_PATHS; // Core protections are always enforced
